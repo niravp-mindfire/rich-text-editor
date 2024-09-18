@@ -3,53 +3,63 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 interface TextAction {
     start: number;
     end: number;
-    bold: boolean;
-    background: string;
+    bold?: boolean;
+    background?: string;
+    comment?: string;
 }
 
 interface EditorState {
-    comment: string;
-    sliderValue: number;
-    showPopover: boolean;
     textActions: TextAction[];
+    sliderValue: number;
+    comment: string;
+    showPopover: boolean;
 }
 
 const initialState: EditorState = {
+    textActions: [],
+    sliderValue: 0,
     comment: '',
-    sliderValue: 50,
     showPopover: false,
-    textActions: [], // Initialize with an empty array
 };
 
 const editorSlice = createSlice({
     name: 'editor',
     initialState,
     reducers: {
-        setComment: (state, action: PayloadAction<string>) => {
-            state.comment = action.payload;
-        },
         setSliderValue: (state, action: PayloadAction<number>) => {
             state.sliderValue = action.payload;
+        },
+        setComment: (state, action: PayloadAction<string>) => {
+            state.comment = action.payload;
         },
         togglePopover: (state, action: PayloadAction<boolean>) => {
             state.showPopover = action.payload;
         },
-        addTextAction: (state, action: PayloadAction<TextAction>) => {
-            state.textActions.push(action.payload);
-        },
         updateTextAction: (state, action: PayloadAction<TextAction>) => {
-            const { start, end, bold, background } = action.payload;
-            const index = state.textActions.findIndex(
+            const { start, end } = action.payload;
+            const existingAction = state.textActions.find(
                 (action) => action.start === start && action.end === end
             );
-            if (index >= 0) {
-                state.textActions[index] = { start, end, bold, background };
+            if (existingAction) {
+                existingAction.bold = action.payload.bold;
+                existingAction.background = action.payload.background;
+                existingAction.comment = action.payload.comment;
             } else {
-                state.textActions.push({ start, end, bold, background });
+                state.textActions.push(action.payload);
             }
+        },
+        resetFormatting: (state) => {
+            state.textActions = [];
         },
     },
 });
 
-export const { setComment, setSliderValue, togglePopover, addTextAction, updateTextAction } = editorSlice.actions;
+export const {
+    setSliderValue,
+    setComment,
+    togglePopover,
+    updateTextAction,
+    resetFormatting,
+} = editorSlice.actions;
+
 export default editorSlice.reducer;

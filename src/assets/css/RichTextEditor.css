@@ -45,7 +45,83 @@
 .add-comment {
     margin: 10px 0;
 }
+
 .ql-container,
-.ql-editor{
+.ql-editor {
     min-height: 500px;
 }
+
+.editor-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.popover {
+    position: absolute;
+    z-index: 1000;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.popover-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.toolbar {
+    margin-top: 20px;
+}
+
+.ant-btn {
+    margin: 0 10px;
+}
+
+.editor-container {
+    position: relative;
+}
+
+.popover {
+    /* Styling for the popover */
+}
+
+.comments-display {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.comment-display-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.comment-text {
+    padding: 2px 5px;
+    background-color: rgba(255, 255, 0, 0.2);
+    border: 1px dashed rgba(255, 255, 0, 0.5);
+    border-radius: 3px;
+}
+
+/* Ensure comments are styled to appear next to the text */
+.ql-editor .comment {
+    position: relative;
+    display: inline-block;
+}
+
+.ql-editor .comment::after {
+    content: attr(data-comment);
+    position: absolute;
+    left: 100%;
+    top: 0;
+    padding: 2px 5px;
+    background-color: rgba(255, 255, 0, 0.2);
+    border: 1px dashed rgba(255, 255, 0, 0.5);
+    border-radius: 3px;
+    white-space: nowrap;
+}
+

@@ -1,10 +1,8 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import ReactQuill from 'react-quill';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { togglePopover, updateTextAction } from '../store/editorSlice';
-import { Row, Button } from 'antd';
-import { UndoOutlined, RedoOutlined } from '@ant-design/icons';
 import 'react-quill/dist/quill.snow.css';
 import '../assets/css/RichTextEditor.css';
 import EditorToolbar from './EditorToolbar';
@@ -23,9 +21,7 @@ const RichTextEditor: React.FC = () => {
     const editorState = useSelector((state: RootState) => state.editor);
     const quillRef = useRef<ReactQuill | null>(null);
     const [popoverPosition, setPopoverPosition] = useState<{ top: number; left: number } | null>(null);
-    const [currentSelection, setCurrentSelection] = useState<{ start: number, end: number } | null>(null);
-    const popoverRef = useRef<HTMLDivElement | null>(null);
-    const editorContainerRef = useRef<HTMLDivElement | null>(null);
+    const [currentSelection, setCurrentSelection] = useState<{ start: number; end: number } | null>(null);
 
     const applyFormatting = (editor: any) => {
         if (!editor || !currentSelection) return;
@@ -40,6 +36,9 @@ const RichTextEditor: React.FC = () => {
                 if (action.background) {
                     editor.format('background', action.background);
                 }
+                if (action.comment) {
+                    editor.format('comment', action.comment);
+                }
             }
         });
     };
@@ -50,16 +49,28 @@ const RichTextEditor: React.FC = () => {
 
         if (range && range.length > 0) {
             try {
-                const bounds = editor.getBounds(range as any);
+                const bounds = editor.getBounds(range);
                 setPopoverPosition({
                     top: bounds.top + window.scrollY + 40,
-                    left: bounds.left + window.scrollX
+                    left: bounds.left + window.scrollX,
                 });
                 dispatch(togglePopover(true));
                 setCurrentSelection({ start: range.index, end: range.index + range.length });
 
-                // Apply formatting immediately
-                applyFormatting(editor);
+                const selectedFormat = editor.getFormat(range.index, range.length);
+                if (Object.keys(selectedFormat).length === 0) {
+                    // dispatch(resetFormatting());
+                } else {
+                    const action = {
+                        start: range.index,
+                        end: range.index + range.length,
+                        bold: selectedFormat.bold || false,
+                        background: selectedFormat.background || '',
+                        comment: selectedFormat.comment || '',
+                    };
+
+                    dispatch(updateTextAction(action));
+                }
             } catch (error) {
                 console.error('Error getting bounds:', error);
             }
@@ -69,32 +80,15 @@ const RichTextEditor: React.FC = () => {
     useEffect(() => {
         const editor = quillRef.current?.getEditor();
         if (editor) {
-            applyFormatting(editor); // Ensure formatting is applied on render
+            // Ensure all actions are applied on render
+            applyFormatting(editor);
         }
     }, [editorState.textActions]);
 
-    const undoChange = () => {
-        const editor = quillRef.current?.getEditor();
-        if (editor) {
-            (editor as any).history.undo();
-        }
-    };
-
-    const redoChange = () => {
-        const editor = quillRef.current?.getEditor();
-        if (editor) {
-            (editor as any).history.redo();
-        }
-    };
-
     const handleDocumentClick = (event: MouseEvent) => {
-        if (editorState.showPopover && popoverRef.current && editorContainerRef.current) {
-            const popoverElement = popoverRef.current;
-            if (
-                popoverElement && !popoverElement.contains(event.target as Node)
-            ) {
-                dispatch(togglePopover(false));
-            }
+        const target = event.target as Element | null;
+        if (editorState.showPopover && target && !target.closest('.popover')) {
+            dispatch(togglePopover(false));
         }
     };
 
@@ -106,7 +100,7 @@ const RichTextEditor: React.FC = () => {
     }, [editorState.showPopover]);
 
     return (
-        <div className="editor-container" ref={editorContainerRef}>
+        <div className="editor-container">
             <ReactQuill
                 ref={quillRef}
                 onChangeSelection={handleSelectionChange}
@@ -114,35 +108,37 @@ const RichTextEditor: React.FC = () => {
                 modules={modules}
                 placeholder="Write something..."
             />
-            <Row justify="center" className="toolbar">
-                <Button onClick={undoChange} icon={<UndoOutlined />} />
-                <Button onClick={redoChange} icon={<RedoOutlined />} />
-            </Row>
 
             {editorState.showPopover && popoverPosition && (
                 <div
                     className="popover"
-                    ref={popoverRef}
                     style={{
                         top: popoverPosition.top,
                         left: popoverPosition.left,
+                        position: 'absolute',
+                        zIndex: 10,
+                        backgroundColor: '#fff',
+                        border: '1px solid #ccc',
+                        padding: '10px',
                     }}
+                    onMouseDown={(e) => e.stopPropagation()}
                 >
                     <EditorToolbar
                         quill={quillRef.current?.getEditor()}
-                        closePopover={() => dispatch(togglePopover(false))}
                         onFormatChange={(formatType, value) => {
                             if (currentSelection) {
                                 const action = {
                                     start: currentSelection.start,
                                     end: currentSelection.end,
                                     bold: formatType === 'bold' ? value : undefined,
-                                    background: formatType === 'background' ? value : '',
+                                    background: formatType === 'background' ? value : undefined,
+                                    comment: formatType === 'comment' ? value : undefined,
                                 };
                                 dispatch(updateTextAction(action));
-                                applyFormatting(quillRef.current?.getEditor()); // Apply formatting immediately
+                                applyFormatting(quillRef.current?.getEditor());
                             }
                         }}
+                        onClosePopover={() => dispatch(togglePopover(false))}
                     />
                 </div>
             )}

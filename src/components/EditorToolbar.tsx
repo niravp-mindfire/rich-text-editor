@@ -1,68 +1,86 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
-import { setComment, setSliderValue } from '../store/editorSlice';
-import { Button, Row, Col, Slider, Input } from 'antd';
+import { setComment } from '../store/editorSlice';
+import { Button, Row, Col, Input, Slider } from 'antd';
 import { BoldOutlined, CommentOutlined } from '@ant-design/icons';
 
 interface EditorToolbarProps {
     quill: any;
-    closePopover: () => void;
     onFormatChange: (formatType: string, value: any) => void;
+    onClosePopover: () => void;
 }
 
-const EditorToolbar: React.FC<EditorToolbarProps> = ({ quill, closePopover, onFormatChange }) => {
+const EditorToolbar: React.FC<EditorToolbarProps> = ({ quill, onFormatChange, onClosePopover }) => {
     const dispatch = useDispatch();
-    const { comment, sliderValue } = useSelector((state: RootState) => state.editor);
+    const editorState = useSelector((state: RootState) => state.editor);
+    const [isBold, setIsBold] = useState(false);
+    const [sliderValue, setSliderValue] = useState<number>(0);
+    const [currentComment, setCurrentComment] = useState<string>('');
 
-    const applyBold = () => {
-        if (quill) {
-            const isBold = quill.getFormat().bold;
-            onFormatChange('bold', !isBold);
-        } else {
-            console.error('Quill editor instance not found');
-        }
-    };
-
-    const handleRateChange = (value: number) => {
-        dispatch(setSliderValue(value));
-        if (quill) {
-            onFormatChange('background', `rgba(255, 0, 0, ${value / 100})`);
-        } else {
-            console.error('Quill editor instance not found');
-        }
-    };
-
-    const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        dispatch(setComment(e.target.value));
+    const addBold = () => {
+        const newBoldState = !isBold;
+        setIsBold(newBoldState);
+        onFormatChange('bold', newBoldState);
     };
 
     const addComment = () => {
-        if (comment) {
-            console.log(`Comment added: ${comment}`);
-            closePopover();
-        }
+        onFormatChange('comment', currentComment);
+        onClosePopover(); // Close the popup after adding the comment
     };
 
+    const handleSliderChange = (value: number) => {
+        setSliderValue(value);
+        const hexColor = `rgba(255, 0, 0, ${value / 100})`;
+        onFormatChange('background', hexColor);
+    };
+
+    useEffect(() => {
+        if (quill) {
+            const currentFormat = quill.getFormat();
+            setIsBold(currentFormat.bold || false);
+            if (currentFormat.background) {
+                const rgbaMatch = currentFormat.background.match(/rgba\(255, 0, 0, ([0-1]?\.\d+|1)\)/);
+                if (rgbaMatch) {
+                    setSliderValue(Math.round(parseFloat(rgbaMatch[1]) * 100));
+                } else {
+                    setSliderValue(0);
+                }
+            }
+            setCurrentComment(currentFormat.comment || '');
+        }
+    }, [quill]);
+
     return (
-        <div className="popover-content">
-            <Button icon={<BoldOutlined />} onClick={applyBold}>Bold</Button>
-            <Row align="middle" gutter={16} style={{ marginTop: 10 }}>
-                <Col span={6}><span>Rate:</span></Col>
-                <Col span={18}>
-                    <Slider min={0} max={100} value={sliderValue} onChange={handleRateChange} />
+        <div className="editor-toolbar">
+            <Row gutter={16}>
+                <Col span={4}>
+                    <Button
+                        type={isBold ? 'primary' : 'default'}
+                        icon={<BoldOutlined />}
+                        onClick={addBold}
+                    />
                 </Col>
-            </Row>
-            <Row align="middle" gutter={16} style={{ marginTop: 10 }}>
-                <Col span={6}><span>Comment:</span></Col>
-                <Col span={18}>
+                <Col span={20}>
+                    <Slider
+                        min={0}
+                        max={100}
+                        onChange={handleSliderChange}
+                        value={sliderValue}
+                    />
+                </Col>
+                <Col span={14}>
                     <Input
-                        value={comment}
-                        onChange={handleCommentChange}
-                        onPressEnter={addComment}
-                        placeholder="Add a comment"
+                        value={currentComment}
+                        onChange={(e) => setCurrentComment(e.target.value)}
+                        placeholder="Add comment"
                         prefix={<CommentOutlined />}
                     />
+                </Col>
+                <Col span={10}>
+                    <Button type="primary" onClick={addComment}>
+                        Add Comment
+                    </Button>
                 </Col>
             </Row>
         </div>
