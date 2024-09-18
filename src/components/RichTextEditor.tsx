@@ -90,9 +90,9 @@ const RichTextEditor: React.FC = () => {
     const handleDocumentClick = (event: MouseEvent) => {
         if (editorState.showPopover && popoverRef.current && editorContainerRef.current) {
             const popoverElement = popoverRef.current;
-            const editorElement = editorContainerRef.current;
-            if (popoverElement && !popoverElement.contains(event.target as Node) &&
-                !editorElement.contains(event.target as Node)) {
+            if (
+                popoverElement && !popoverElement.contains(event.target as Node)
+            ) {
                 dispatch(togglePopover(false));
             }
         }
