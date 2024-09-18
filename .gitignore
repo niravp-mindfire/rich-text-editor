@@ -66,3 +66,5 @@ coverage/
 
 # Lerna
 lerna-debug.log
+
+.early.coverage

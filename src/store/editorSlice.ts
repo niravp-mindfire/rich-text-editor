@@ -41,25 +41,13 @@ const editorSlice = createSlice({
                 (action) => action.start === start && action.end === end
             );
             if (existingAction) {
-                existingAction.bold = action.payload.bold;
-                existingAction.background = action.payload.background;
-                existingAction.comment = action.payload.comment;
+                Object.assign(existingAction, action.payload);
             } else {
                 state.textActions.push(action.payload);
             }
         },
-        resetFormatting: (state) => {
-            state.textActions = [];
-        },
     },
 });
 
-export const {
-    setSliderValue,
-    setComment,
-    togglePopover,
-    updateTextAction,
-    resetFormatting,
-} = editorSlice.actions;
-
+export const { setSliderValue, setComment, togglePopover, updateTextAction } = editorSlice.actions;
 export default editorSlice.reducer;

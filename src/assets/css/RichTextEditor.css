@@ -125,3 +125,24 @@
     white-space: nowrap;
 }
 
+/* RichTextEditor.css */
+
+.ql-editor .comment {
+    position: relative;
+    display: inline-block;
+    background-color: rgba(255, 255, 0, 0.2); /* Highlight for visibility */
+    border: 1px dashed rgba(255, 255, 0, 0.5);
+    border-radius: 3px;
+}
+
+.ql-editor .comment::after {
+    content: attr(data-comment);
+    position: absolute;
+    left: 100%;
+    top: 0;
+    padding: 2px 5px;
+    background-color: rgba(255, 255, 0, 0.2);
+    border: 1px dashed rgba(255, 255, 0, 0.5);
+    border-radius: 3px;
+    white-space: nowrap;
+}

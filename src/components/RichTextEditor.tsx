@@ -3,6 +3,7 @@ import ReactQuill from 'react-quill';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { togglePopover, updateTextAction } from '../store/editorSlice';
+import { UndoOutlined, RedoOutlined } from '@ant-design/icons'; // Import undo and redo icons
 import 'react-quill/dist/quill.snow.css';
 import '../assets/css/RichTextEditor.css';
 import EditorToolbar from './EditorToolbar';
@@ -77,10 +78,29 @@ const RichTextEditor: React.FC = () => {
         }
     };
 
+    const handleUndo = () => {
+        const editor = quillRef.current?.getEditor();
+        if (editor) {
+            const history = editor.getModule('history');
+            if (history) {
+                history.undo();
+            }
+        }
+    };
+
+    const handleRedo = () => {
+        const editor = quillRef.current?.getEditor();
+        if (editor) {
+            const history = editor.getModule('history');
+            if (history) {
+                history.redo();
+            }
+        }
+    };
+
     useEffect(() => {
         const editor = quillRef.current?.getEditor();
         if (editor) {
-            // Ensure all actions are applied on render
             applyFormatting(editor);
         }
     }, [editorState.textActions]);
@@ -101,6 +121,15 @@ const RichTextEditor: React.FC = () => {
 
     return (
         <div className="editor-container">
+            <div className="editor-toolbar">
+                <button onClick={handleUndo} title="Undo">
+                    <UndoOutlined />
+                </button>
+                <button onClick={handleRedo} title="Redo">
+                    <RedoOutlined />
+                </button>
+            </div>
+
             <ReactQuill
                 ref={quillRef}
                 onChangeSelection={handleSelectionChange}
