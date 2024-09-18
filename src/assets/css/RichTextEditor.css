@@ -1,0 +1,47 @@
+.editor-container {
+    margin: 20px auto;
+    max-width: 800px;
+    position: relative;
+    padding: 20px;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    background-color: #fafafa;
+}
+
+.toolbar {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.popover {
+    position: absolute;
+    background: white;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    padding: 10px;
+    z-index: 1000;
+    width: 400px;
+}
+
+.popover-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.popover-button {
+    margin-bottom: 10px;
+}
+
+.popover-slider {
+    margin-top: 10px;
+}
+
+.popover-input {
+    margin-top: 10px;
+}
+
+.add-comment {
+    margin: 10px 0;
+}
