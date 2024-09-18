@@ -52,7 +52,7 @@ const RichTextEditor: React.FC = () => {
             try {
                 const bounds = editor.getBounds(range);
                 setPopoverPosition({
-                    top: bounds.top + window.scrollY + 40,
+                    top: bounds.top + window.scrollY + 60,
                     left: bounds.left + window.scrollX,
                 });
                 dispatch(togglePopover(true));
