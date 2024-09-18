@@ -8,15 +8,17 @@ import { BoldOutlined, CommentOutlined } from '@ant-design/icons';
 interface EditorToolbarProps {
     quill: any;
     closePopover: () => void;
+    onFormatChange: (formatType: string, value: any) => void;
 }
 
-const EditorToolbar: React.FC<EditorToolbarProps> = ({ quill, closePopover }) => {
+const EditorToolbar: React.FC<EditorToolbarProps> = ({ quill, closePopover, onFormatChange }) => {
     const dispatch = useDispatch();
     const { comment, sliderValue } = useSelector((state: RootState) => state.editor);
 
     const applyBold = () => {
         if (quill) {
-            quill.format('bold', true);
+            const isBold = quill.getFormat().bold;
+            onFormatChange('bold', !isBold);
         } else {
             console.error('Quill editor instance not found');
         }
@@ -25,7 +27,7 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({ quill, closePopover }) =>
     const handleRateChange = (value: number) => {
         dispatch(setSliderValue(value));
         if (quill) {
-            quill.format('background', `rgba(255, 0, 0, ${value / 100})`);
+            onFormatChange('background', `rgba(255, 0, 0, ${value / 100})`);
         } else {
             console.error('Quill editor instance not found');
         }
@@ -57,10 +59,10 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({ quill, closePopover }) =>
                     <Input
                         value={comment}
                         onChange={handleCommentChange}
+                        onPressEnter={addComment}
                         placeholder="Add a comment"
-                        suffix={<CommentOutlined />}
+                        prefix={<CommentOutlined />}
                     />
-                    <Button onClick={addComment} type="primary" block className='add-comment'>Add Comment</Button>
                 </Col>
             </Row>
         </div>

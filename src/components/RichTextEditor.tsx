@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import ReactQuill from 'react-quill';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
-import { togglePopover } from '../store/editorSlice';
+import { togglePopover, updateTextAction } from '../store/editorSlice';
 import { Row, Button } from 'antd';
 import { UndoOutlined, RedoOutlined } from '@ant-design/icons';
 import 'react-quill/dist/quill.snow.css';
@@ -23,8 +23,26 @@ const RichTextEditor: React.FC = () => {
     const editorState = useSelector((state: RootState) => state.editor);
     const quillRef = useRef<ReactQuill | null>(null);
     const [popoverPosition, setPopoverPosition] = useState<{ top: number; left: number } | null>(null);
+    const [currentSelection, setCurrentSelection] = useState<{ start: number, end: number } | null>(null);
     const popoverRef = useRef<HTMLDivElement | null>(null);
     const editorContainerRef = useRef<HTMLDivElement | null>(null);
+
+    const applyFormatting = (editor: any) => {
+        if (!editor || !currentSelection) return;
+
+        const { start, end } = currentSelection;
+
+        editorState.textActions.forEach(action => {
+            if (start >= action.start && end <= action.end) {
+                if (action.bold !== undefined) {
+                    editor.format('bold', action.bold);
+                }
+                if (action.background) {
+                    editor.format('background', action.background);
+                }
+            }
+        });
+    };
 
     const handleSelectionChange = (range: any) => {
         const editor = quillRef.current?.getEditor();
@@ -34,15 +52,26 @@ const RichTextEditor: React.FC = () => {
             try {
                 const bounds = editor.getBounds(range as any);
                 setPopoverPosition({
-                    top: bounds.top + window.scrollY,
+                    top: bounds.top + window.scrollY + 40,
                     left: bounds.left + window.scrollX
                 });
                 dispatch(togglePopover(true));
+                setCurrentSelection({ start: range.index, end: range.index + range.length });
+
+                // Apply formatting immediately
+                applyFormatting(editor);
             } catch (error) {
                 console.error('Error getting bounds:', error);
             }
         }
     };
+
+    useEffect(() => {
+        const editor = quillRef.current?.getEditor();
+        if (editor) {
+            applyFormatting(editor); // Ensure formatting is applied on render
+        }
+    }, [editorState.textActions]);
 
     const undoChange = () => {
         const editor = quillRef.current?.getEditor();
@@ -99,7 +128,22 @@ const RichTextEditor: React.FC = () => {
                         left: popoverPosition.left,
                     }}
                 >
-                    <EditorToolbar quill={quillRef.current?.getEditor()} closePopover={() => dispatch(togglePopover(false))} />
+                    <EditorToolbar
+                        quill={quillRef.current?.getEditor()}
+                        closePopover={() => dispatch(togglePopover(false))}
+                        onFormatChange={(formatType, value) => {
+                            if (currentSelection) {
+                                const action = {
+                                    start: currentSelection.start,
+                                    end: currentSelection.end,
+                                    bold: formatType === 'bold' ? value : undefined,
+                                    background: formatType === 'background' ? value : '',
+                                };
+                                dispatch(updateTextAction(action));
+                                applyFormatting(quillRef.current?.getEditor()); // Apply formatting immediately
+                            }
+                        }}
+                    />
                 </div>
             )}
         </div>
