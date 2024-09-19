@@ -3,6 +3,7 @@ import { Provider } from 'react-redux';
 import RichTextEditor from './components/RichTextEditor';
 import store from './store/store';
 import { Layout } from 'antd';
+import MyApp from './MyApp';
 
 const { Header, Content } = Layout;
 
@@ -14,7 +15,8 @@ const App: React.FC = () => {
           Rich Text Editor
         </Header>
         <Content style={{ padding: '50px' }}>
-          <RichTextEditor />
+          {/* <RichTextEditor /> */}
+          <MyApp />
         </Content>
       </Layout>
     </Provider>

@@ -14,16 +14,6 @@
     justify-content: space-around;
 }
 
-.popover {
-    position: absolute;
-    background: white;
-    border: 1px solid #d9d9d9;
-    border-radius: 4px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    padding: 10px;
-    z-index: 1000;
-    width: 400px;
-}
 
 .popover-content {
     display: flex;
@@ -57,15 +47,6 @@
     margin: 0 auto;
 }
 
-.popover {
-    position: absolute;
-    z-index: 1000;
-    padding: 10px;
-    border: 1px solid #ccc;
-    background-color: white;
-    border-radius: 5px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
 
 .popover-content {
     display: flex;
@@ -146,3 +127,72 @@
     border-radius: 3px;
     white-space: nowrap;
 }
+
+/* Parent container with flexbox layout */
+.editor-layout {
+    display: flex;
+    align-items: flex-start;
+    background-color: #1a1a1a;
+    padding: 20px;
+  }
+  
+  /* Avatar section on the left */
+  .avatar-section {
+    margin-right: 20px;
+    text-align: center;
+  }
+  
+  .avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #ffc107; /* Yellow circle */
+  }
+  
+  .audio-controls {
+    margin-top: 10px;
+  }
+  
+  .audio-controls label {
+    color: white;
+    display: block;
+    margin-bottom: 4px;
+  }
+  
+  .editor-section {
+    flex: 1;
+  }
+  
+  .editor-toolbar {
+    margin-bottom: 10px;
+  }
+  
+  .ql-editor p::before {
+    content: "•";
+    color: #ffc107; /* Yellow dot */
+    font-size: 20px;
+    position: absolute;
+    left: -25px;
+    top: -5px;
+  }
+  
+  .ql-editor p {
+    margin-left: 30px;
+    position: relative;
+  }
+  
+  /* Move the placeholder text 30px to the left */
+.ql-editor::before {
+    margin-left: 30px; /* Move placeholder text 30px to the left */
+    color: #888; /* Optional: style the placeholder color */
+  }
+  
+  .popover {
+    position: absolute;
+    z-index: 100;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
